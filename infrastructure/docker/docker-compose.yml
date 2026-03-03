@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ../../src/main/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ../../src/main/backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/helmchecker
+      - REDIS_URL=redis://redis:6379
+      - LINTER_URL=http://linter:8000
+      - JWT_SECRET=helm_checker_secret_2024
+    depends_on:
+      - mongo
+      - redis
+      - linter
+
+  linter:
+    build:
+      context: ../../src/main/linter
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

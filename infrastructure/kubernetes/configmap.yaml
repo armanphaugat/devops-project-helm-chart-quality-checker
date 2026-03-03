@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: helm-checker-config
+  namespace: helm-checker
+data:
+  LINTER_URL: "http://linter-service:8000"
+  MONGO_URI: "mongodb://mongo-service:27017/helmchecker"
+  REDIS_URL: "redis://redis-service:6379"
