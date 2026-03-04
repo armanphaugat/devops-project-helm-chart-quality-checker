@@ -1,78 +1,54 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: backend
-  namespace: helm-checker
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: backend
-  template:
-    metadata:
-      labels:
-        app: backend
-    spec:
-      containers:
-      - name: backend
-        image: helm-checker-backend:latest
-        ports:
-        - containerPort: 8080
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        securityContext:
-          runAsUser: 1000
-          runAsNonRoot: true
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linter
+  name: mongo
   namespace: helm-checker
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: linter
+      app: mongo
   template:
     metadata:
       labels:
-        app: linter
+        app: mongo
     spec:
       containers:
-      - name: linter
-        image: helm-checker-linter:latest
-        ports:
-        - containerPort: 8000
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "300m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8000
-          initialDelaySeconds: 20
-          periodSeconds: 10
-        securityContext:
-          runAsUser: 1000
+        - name: mongo
+          image: mongo:6
+          ports:
+            - containerPort: 27017
+          resources:
+            requests: { memory: "256Mi", cpu: "200m" }
+            limits:   { memory: "512Mi", cpu: "500m" }
+          volumeMounts:
+            - name: mongo-data
+              mountPath: /data/db
+      volumes:
+        - name: mongo-data
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: helm-checker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests: { memory: "64Mi",  cpu: "50m"  }
+            limits:   { memory: "128Mi", cpu: "100m" }

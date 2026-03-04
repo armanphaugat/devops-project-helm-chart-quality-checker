@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-const MOCK_MODE = true;
+const MOCK_MODE = false;
 
 function mockScan(filename) {
   const isBad = filename.includes("bad");
@@ -388,7 +388,7 @@ export default function App() {
   const [authMode, setMode]   = useState("login");
   const [authForm, setForm]   = useState({ email:"", password:"" });
   const [authError, setError] = useState("");
-  const [loggedIn, setLogin]  = useState(MOCK_MODE);
+  const [loggedIn, setLogin]  = useState(false);
 
   const handleScan = (r, fname) => {
     setResult(r); setFile(fname);

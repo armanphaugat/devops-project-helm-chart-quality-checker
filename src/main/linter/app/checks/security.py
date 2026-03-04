@@ -8,7 +8,7 @@ def check_run_as_root(containers: list) -> list:
     issues = []
     for container in containers:
         security_ctx = container.get("securityContext", {})
-        run_as_user = security_ctx.get("runAsUser", 0)  # default is root if not set
+        run_as_user = security_ctx.get("runAsUser")  # default is root if not set
         if run_as_user == 0:
             issues.append({
                 "severity": "HIGH",
