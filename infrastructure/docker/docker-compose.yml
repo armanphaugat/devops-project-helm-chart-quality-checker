@@ -3,10 +3,12 @@ version: '3.8'
 services:
   frontend:
     build:
-      context: ../../src/main/frontend
+      # FIX: was ../../src/main/frontend — no Dockerfile there.
+      # Dockerfile actually lives in the helm-frontend subfolder.
+      context: ../../src/main/frontend/helm-frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       - backend
 
@@ -15,16 +17,22 @@ services:
       context: ../../src/main/backend
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       - MONGO_URI=mongodb://mongo:27017/helmchecker
       - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - LINTER_URL=http://linter:8000
       - JWT_SECRET=helm_checker_secret_2024
+    # FIX: backend now waits for mongo and redis to pass health checks
     depends_on:
-      - mongo
-      - redis
-      - linter
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      linter:
+        condition: service_started
 
   linter:
     build:
@@ -36,7 +44,12 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   mongo:
     image: mongo:6
@@ -44,6 +57,11 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mongo_data:
