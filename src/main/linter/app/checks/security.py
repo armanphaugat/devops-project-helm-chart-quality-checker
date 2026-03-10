@@ -1,8 +1,3 @@
-"""
-Security checks for Helm chart YAML files.
-Checks for dangerous security misconfigurations.
-"""
-
 def check_run_as_root(containers: list) -> list:
     """Check if any container runs as root (UID 0)."""
     issues = []

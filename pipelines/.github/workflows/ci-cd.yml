@@ -25,8 +25,6 @@ jobs:
         with:
           node-version: '20'
       - run: cd src/main/backend && npm ci
-      # FIX: no test files existed, causing "npm test" to fail.
-      # Added a placeholder test so the job passes until real tests are written.
       - run: |
           mkdir -p src/main/backend/__tests__
           echo "test('placeholder', () => expect(1).toBe(1));" \
@@ -40,7 +38,6 @@ jobs:
       - uses: actions/checkout@v3
       - run: docker build -t helm-checker-backend:latest src/main/backend/
       - run: docker build -t helm-checker-linter:latest src/main/linter/
-      # FIX: frontend image was never built in CI
       - run: docker build -t helm-checker-frontend:latest src/main/frontend/helm-frontend/
 
   deploy:
@@ -50,6 +47,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Deploy with Docker Compose
-        # FIX: added working-directory so ../../src/... paths in compose file resolve correctly
         working-directory: infrastructure/docker
         run: docker-compose up -d --build

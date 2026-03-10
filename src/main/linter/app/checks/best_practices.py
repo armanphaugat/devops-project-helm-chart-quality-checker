@@ -1,9 +1,4 @@
-"""
-Best practice checks for Helm chart configurations.
-"""
-
 def check_image_tag(containers: list) -> list:
-    """Warn if :latest tag is used — unpredictable deployments."""
     issues = []
     for container in containers:
         image = container.get("image", "")
@@ -15,10 +10,7 @@ def check_image_tag(containers: list) -> list:
                 "fix": "Pin to a specific image version like nginx:1.25.3"
             })
     return issues
-
-
 def check_probes(containers: list) -> list:
-    """Check if liveness and readiness probes are defined."""
     issues = []
     for container in containers:
         name = container.get("name", "unknown")

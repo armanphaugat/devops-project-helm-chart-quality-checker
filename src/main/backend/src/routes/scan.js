@@ -2,16 +2,13 @@ import { Router } from 'express';
 import multer from 'multer';
 import { authMiddleware } from '../middleware/auth.js';
 import { scanQueue, redisClient } from '../lib/connections.js';
-
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
-
 router.post('/upload', authMiddleware, upload.single('chart'), async (req, res) => {
   try {
     const cacheKey = 'scan:' + req.file.originalname;
     const cached = await redisClient.get(cacheKey);
     if (cached) return res.json({ source: 'cache', result: JSON.parse(cached) });
-
     const job = await scanQueue.add('scan-chart', {
       userId:     req.user.id,
       fileBuffer: req.file.buffer.toString('base64'),
@@ -22,7 +19,6 @@ router.post('/upload', authMiddleware, upload.single('chart'), async (req, res) 
     res.status(500).json({ error: err.message });
   }
 });
-
 router.get('/status/:jobId', authMiddleware, async (req, res) => {
   try {
     const job = await scanQueue.getJob(req.params.jobId);

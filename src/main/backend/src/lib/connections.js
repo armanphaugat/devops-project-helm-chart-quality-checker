@@ -1,7 +1,3 @@
-// src/lib/connections.js
-// Shared Redis client and BullMQ queue.
-// Extracted here to break the circular import: index.js <-> scan.js
-
 import Redis from 'ioredis';
 import { Queue } from 'bullmq';
 import dotenv from 'dotenv';

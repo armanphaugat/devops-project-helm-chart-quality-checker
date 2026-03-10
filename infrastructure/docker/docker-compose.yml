@@ -3,8 +3,6 @@ version: '3.8'
 services:
   frontend:
     build:
-      # FIX: was ../../src/main/frontend — no Dockerfile there.
-      # Dockerfile actually lives in the helm-frontend subfolder.
       context: ../../src/main/frontend/helm-frontend
       dockerfile: Dockerfile
     ports:
@@ -25,7 +23,6 @@ services:
       - REDIS_PORT=6379
       - LINTER_URL=http://linter:8000
       - JWT_SECRET=helm_checker_secret_2024
-    # FIX: backend now waits for mongo and redis to pass health checks
     depends_on:
       mongo:
         condition: service_healthy
@@ -50,7 +47,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-
   mongo:
     image: mongo:6
     ports:
